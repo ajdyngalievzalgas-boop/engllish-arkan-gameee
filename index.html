@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>English Reflection – Arkan Tartu</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    text-align:center;
+    color:white;
+    background:url("https://images.unsplash.com/photo-1608889175123-8ee362508a20") no-repeat center center fixed;
+    background-size:cover;
+}
+
+.overlay{
+    background:rgba(0,0,0,0.6);
+    min-height:100vh;
+    padding:20px;
+}
+
+.container{
+    background:rgba(255,255,255,0.9);
+    color:black;
+    max-width:650px;
+    margin:auto;
+    padding:20px;
+    border-radius:20px;
+}
+
+button{
+    padding:10px 20px;
+    margin:10px;
+    border:none;
+    border-radius:10px;
+    background:#1e90ff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#005ecb;
+}
+
+#rope{
+    width:100%;
+    height:20px;
+    background:brown;
+    border-radius:10px;
+    margin:20px 0;
+    position:relative;
+}
+
+#marker{
+    width:25px;
+    height:25px;
+    background:red;
+    border-radius:50%;
+    position:absolute;
+    left:50%;
+    top:-3px;
+    transition:0.5s;
+}
+</style>
+</head>
+
+<body>
+<div class="overlay">
+<h1>🏹 Arkan Tartu – English Lesson</h1>
+
+<div class="container">
+
+<div id="start">
+<input type="text" id="name" placeholder="Enter your name">
+<br><br>
+<button onclick="startGame()">Start</button>
+</div>
+
+<div id="game" style="display:none;">
+<p id="question"></p>
+<div id="answers"></div>
+
+<div id="rope">
+<div id="marker"></div>
+</div>
+
+<p>Score: <span id="score">0</span></p>
+</div>
+
+<div id="reflection" style="display:none;">
+<h3>Lesson Reflection</h3>
+
+<p>Did you enjoy today's lesson?</p>
+<button onclick="setEnjoy('Yes')">Yes 👍</button>
+<button onclick="setEnjoy('No')">No 👎</button>
+
+<p>Rate the lesson (1-5)</p>
+<input type="number" id="rating" min="1" max="5">
+
+<p>Write your opinion:</p>
+<textarea id="feedback" rows="4" cols="40"></textarea>
+<br><br>
+<button onclick="finishGame()">Submit</button>
+</div>
+
+<div id="result" style="display:none;">
+<h2 id="finalMessage"></h2>
+</div>
+
+</div>
+</div>
+
+<script>
+
+let enjoyValue = "";
+let current = 0;
+let score = 0;
+let position = 50;
+
+let questions = [
+{
+q:"Choose the correct sentence:",
+a:["She go to school.","She goes to school.","She going to school."],
+correct:1
+},
+{
+q:"What is the past tense of 'go'?",
+a:["goed","went","goes"],
+correct:1
+},
+{
+q:"Choose the correct translation of 'Мен сабақ оқып жатырмын':",
+a:["I study now","I am studying now","I studies now"],
+correct:1
+}
+];
+
+function startGame(){
+let name = document.getElementById("name").value;
+if(name===""){
+alert("Enter your name!");
+return;
+}
+document.getElementById("start").style.display="none";
+document.getElementById("game").style.display="block";
+showQuestion();
+}
+
+function showQuestion(){
+let q = questions[current];
+document.getElementById("question").innerText=q.q;
+let ans=document.getElementById("answers");
+ans.innerHTML="";
+q.a.forEach((answer,index)=>{
+let btn=document.createElement("button");
+btn.innerText=answer;
+btn.onclick=function(){checkAnswer(index)};
+ans.appendChild(btn);
+});
+}
+
+function checkAnswer(index){
+if(index===questions[current].correct){
+score++;
+position+=10;
+document.getElementById("score").innerText=score;
+}
+current++;
+document.getElementById("marker").style.left=position+"%";
+
+if(current<questions.length){
+showQuestion();
+}else{
+document.getElementById("game").style.display="none";
+document.getElementById("reflection").style.display="block";
+}
+}
+
+function setEnjoy(val){
+enjoyValue=val;
+}
+
+function finishGame(){
+let name=document.getElementById("name").value;
+let rating=document.getElementById("rating").value;
+let feedback=document.getElementById("feedback").value;
+
+fetch("https://script.google.com/macros/s/AKfycbzXN0cos0P0ftqkctfCWxn1cA2odN-nNqtDAlGKirhXV1Fm8zPftWcHWDpxMMOiwrOC/exec",{
+method:"POST",
+body:JSON.stringify({
+name:name,
+score:score,
+enjoy:enjoyValue,
+rating:rating,
+feedback:feedback
+})
+});
+
+document.getElementById("reflection").style.display="none";
+document.getElementById("result").style.display="block";
+document.getElementById("finalMessage").innerText=
+"Thank you, "+name+"! Your reflection has been saved.";
+}
+
+</script>
+</body>
+</html>
